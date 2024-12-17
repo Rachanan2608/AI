@@ -1,0 +1,45 @@
+# Define the predicates as functions that return boolean values
+def S(x):  # x suffers from allergies
+    return x in sufferers
+
+def P(x):  # x sneezes
+    return x in sneezers
+
+def L(x):  # x lives with a cat
+    return x in cat_owners
+
+def A(x):  # x is allergic to cats
+    return x in allergic_to_cats
+
+# Initial facts (known facts about the world)
+sufferers = set()  # A set of people who suffer from allergies
+sneezers = set()  # A set of people who sneeze
+cat_owners = {'m'}  # Mary lives with a cat
+allergic_to_cats = {'m'}  # Mary is allergic to cats
+
+# Inferences based on the FOL premises
+
+# Premise 1: If someone suffers from allergies, they sneeze
+def premise_1():
+    for person in sufferers:
+        sneezers.add(person)
+
+# Premise 2: If someone lives with a cat and is allergic to cats, they will suffer from allergies
+def premise_2():
+    for person in cat_owners:
+        if person in allergic_to_cats:
+            sufferers.add(person)
+
+# Now, we can apply the inference rules step by step.
+
+# Apply premise 2 (Mary lives with a cat and is allergic to cats)
+premise_2()
+
+# Now, apply premise 1 (if someone suffers from allergies, they sneeze)
+premise_1()
+
+# Check if Mary sneezes (i.e., if 'm' is in the sneezers set)
+if P('m'):
+    print("Mary sneezes.")
+else:
+    print("Mary does not sneeze.")
