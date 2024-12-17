@@ -1,0 +1,65 @@
+class Unifier:
+    def __init__(self):
+        self.substitution = {}
+
+    def unify(self, term1, term2):
+        """
+        Perform unification of two terms. If unification is possible, return
+        the most general unifier as a dictionary. Otherwise, return None.
+        """
+        # If terms are the same, no substitution needed.
+        if term1 == term2:
+            return self.substitution
+
+        # If term1 is a variable, unify with term2
+        if isinstance(term1, str) and term1.islower():  # term1 is a variable
+            return self.unify_variable(term1, term2)
+
+        # If term2 is a variable, unify with term1
+        if isinstance(term2, str) and term2.islower():  # term2 is a variable
+            return self.unify_variable(term2, term1)
+
+        # If both terms are compound (functions or predicates), unify their components
+        if isinstance(term1, tuple) and isinstance(term2, tuple):
+            if term1[0] != term2[0]:  # Check if the functor (like Q or f) is the same
+                return None
+            if len(term1) != len(term2):  # They must have the same arity (number of arguments)
+                return None
+            for arg1, arg2 in zip(term1[1:], term2[1:]):
+                result = self.unify(arg1, arg2)  # Recursively unify the arguments
+                if result is None:
+                    return None
+            return self.substitution  # Return the updated substitution
+
+        return None
+
+    def unify_variable(self, var, term):
+        """
+        Unify a variable with a term.
+        """
+        # If the variable is already substituted, use the substitution recursively
+        if var in self.substitution:
+            return self.unify(self.substitution[var], term)
+
+        # Check for circularity (e.g., if trying to unify a variable with itself)
+        if term == var:
+            return self.substitution
+
+        # Apply the substitution
+        self.substitution[var] = term
+        return self.substitution
+
+def most_general_unifier(term1, term2):
+    unifier = Unifier()
+    return unifier.unify(term1, term2)
+
+# Example terms: Q(f(a), g(x)) and Q(y, y)
+term1 = ('Q', ('f', 'a'), ('g', 'x'))
+term2 = ('Q', 'y', 'y')
+
+# Find the most general unifier
+mgu = most_general_unifier(term1, term2)
+if mgu is not None:
+    print("Most General Unifier (MGU):", mgu)
+else:
+    print("No unification possible.")
